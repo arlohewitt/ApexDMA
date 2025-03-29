@@ -35,6 +35,7 @@ struct Player {
     Vector3D AbsoluteVelocity;
 
     int Health;
+    int Shield;
 
     float ViewYaw;
 
@@ -90,7 +91,7 @@ struct Player {
                 LastVisibleState = true;
                 VisCheckCount = 0;
             }
-            else if(LastVisibleTime == LastTimeVisiblePrevious) {
+            else if (LastVisibleTime == LastTimeVisiblePrevious) {
                 VisCheckCount++;
                 if (VisCheckCount < VisCheckThreshold) {
                     LastVisibleState = true;
@@ -106,9 +107,9 @@ struct Player {
     void ValidCheck() {
         if (Valid) {
             if (Valid > 0x7FFFFFFEFFFF || Valid < 0x7FF000000000) {
-				BasePointer = 0;
-				Valid = 0;
-			}
+                BasePointer = 0;
+                Valid = 0;
+            }
         }
     }
 
@@ -119,7 +120,7 @@ struct Player {
         IsAimedAt = LastTimeAimedAtPrevious < LastTimeAimedAt;
         LastTimeAimedAtPrevious = LastTimeAimedAt;
 
-        IsVisible = IsDummy() || IsAimedAt || VisCheck();    
+        IsVisible = IsDummy() || IsAimedAt || VisCheck();
 
         if (Myself->IsValid()) {
             IsLocal = Myself->BasePointer == BasePointer;
@@ -127,7 +128,7 @@ struct Player {
             IsHostile = !IsAlly;
             DistanceToLocalPlayer = Myself->LocalOrigin.Distance(LocalOrigin);
             Distance2DToLocalPlayer = Myself->LocalOrigin.To2D().Distance(LocalOrigin.To2D());
-            
+
         }
     }
 

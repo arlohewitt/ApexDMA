@@ -66,7 +66,7 @@ bool c_keys::InitKeyboard()
 
 void c_keys::UpdateKeys()
 {
-	uint8_t previous_key_state_bitmap[64] = {0};
+	uint8_t previous_key_state_bitmap[64] = { 0 };
 	memcpy(previous_key_state_bitmap, state_bitmap, 64);
 
 	VMMDLL_MemReadEx(mem.vHandle, this->win_logon_pid | VMMDLL_PID_PROCESS_WITH_KERNELMEMORY, gafAsyncKeyStateExport, (PBYTE)&state_bitmap, 64, NULL, VMMDLL_FLAG_NOCACHE);

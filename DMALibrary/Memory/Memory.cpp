@@ -387,6 +387,14 @@ uintptr_t Memory::GetExportTableAddress(std::string import, std::string process,
 	return addr;
 }
 
+bool Memory::VirtToPhys(uint64_t va, uint64_t& pa)
+{
+	if (VMMDLL_VirtualToPhysical(this->vHandle, va, &pa)) {
+		return true;
+	}
+	return false;
+}
+
 uintptr_t Memory::GetImportTableAddress(std::string import, std::string process, std::string module)
 {
 	PVMMDLL_MAP_IAT iat_map = NULL;
@@ -444,8 +452,8 @@ bool Memory::FixCr3()
 {
 	PVMMDLL_MAP_MODULEENTRY module_entry;
 	bool result = VMMDLL_Map_GetModuleFromNameU(this->vHandle, this->current_process.PID, (LPSTR)this->current_process.process_name.c_str(), &module_entry, NULL);
-	if (result)
-		return true; //Doesn't need to be patched lol
+	//if (result)
+		//return true; //Doesn't need to be patched lol
 
 	if (!VMMDLL_InitializePlugins(this->vHandle))
 	{
@@ -513,6 +521,39 @@ bool Memory::FixCr3()
 		if (result)
 		{
 			LOG("[+] Patched DTB\n");
+			static ULONG64 pml4_first[512];
+			static ULONG64 pml4_second[512];
+			DWORD readsize;
+
+			LOG("[+] Reading PML4 table from DTB: 0x%llx\n", dtb);
+
+			if (!VMMDLL_MemReadEx(this->vHandle, -1, dtb, reinterpret_cast<PBYTE>(pml4_first), sizeof(pml4_first), (PDWORD)&readsize,
+				VMMDLL_FLAG_NOCACHE | VMMDLL_FLAG_NOPAGING | VMMDLL_FLAG_ZEROPAD_ON_FAIL | VMMDLL_FLAG_NOPAGING_IO)) {
+				LOG("[!] Failed to read PML4 the first time\n");
+				return false;
+			}
+			LOG("[+] First PML4 read successful, size: %d\n", readsize);
+
+			if (!VMMDLL_MemReadEx(this->vHandle, -1, dtb, reinterpret_cast<PBYTE>(pml4_second), sizeof(pml4_second), (PDWORD)&readsize,
+				VMMDLL_FLAG_NOCACHE | VMMDLL_FLAG_NOPAGING | VMMDLL_FLAG_ZEROPAD_ON_FAIL | VMMDLL_FLAG_NOPAGING_IO)) {
+				LOG("[!] Failed to read PML4 the second time\n");
+				return false;
+			}
+			LOG("[+] Second PML4 read successful, size: %d\n", readsize);
+
+			if (memcmp(pml4_first, pml4_second, sizeof(pml4_first)) != 0) {
+				LOG("[!] PML4 mismatch between reads\n");
+				return false;
+			}
+			LOG("[+] PML4 verification successful, tables match\n");
+
+			LOG("[+] Setting up PML4 cache\n");
+			VMMDLL_MemReadEx((VMM_HANDLE)-666, 333, (ULONG64)pml4_first, 0, 0, 0, 0);
+
+			LOG("[+] Configuring process DTB\n");
+			VMMDLL_ConfigSet(this->vHandle, VMMDLL_OPT_PROCESS_DTB | current_process.PID, 666);
+
+			LOG("[+] Cache initialization complete\n");
 			return true;
 		}
 	}
@@ -690,7 +731,7 @@ uint64_t Memory::FindSignature(const char* signature, uint64_t range_start, uint
 
 bool Memory::Write(uintptr_t address, void* buffer, size_t size) const
 {
-	if (!VMMDLL_MemWrite(this->vHandle, this->current_process.PID, address, (PBYTE)buffer, size))
+	if (!VMMDLL_MemWrite(this->vHandle, -1, address, (PBYTE)buffer, size))
 	{
 		LOG("[!] Failed to write Memory at 0x%p\n", address);
 		return false;
@@ -700,7 +741,7 @@ bool Memory::Write(uintptr_t address, void* buffer, size_t size) const
 
 bool Memory::Write(uintptr_t address, void* buffer, size_t size, int pid) const
 {
-	if (!VMMDLL_MemWrite(this->vHandle, pid, address, (PBYTE)buffer, size))
+	if (!VMMDLL_MemWrite(this->vHandle, -1, address, (PBYTE)buffer, size))
 	{
 		LOG("[!] Failed to write Memory at 0x%p\n", address);
 		return false;

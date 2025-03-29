@@ -7,11 +7,10 @@
 
 
 struct Spectator {
-    // Variables
     LocalPlayer* Myself;
     std::vector<Player*>* Players;
     int TotalSpectators = 0;
-    std::vector<std::string> Spectators;
+    std::vector<std::string> SpectatorsNames;
     std::chrono::milliseconds LastUpdateTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
     Spectator(std::vector<Player*>* Players, LocalPlayer* Myself) {
@@ -24,30 +23,36 @@ struct Spectator {
         if (Now >= LastUpdateTime + std::chrono::milliseconds(1500))
         {
             int TempTotalSpectators = 0;
-            std::vector<std::string> TempSpectators;
+            std::vector<std::string> TempSpectatorsNames;
+
             for (int i = 0; i < Players->size(); i++)
             {
                 Player* p = Players->at(i);
                 if (!mem.IsValidPointer(p->BasePointer))
-					continue;
+                    continue;
+
                 if (p->BasePointer == Myself->BasePointer)
                     continue;
+
                 if (!p->IsPlayer())
-					continue;
-                if (p->ViewYaw == 0 || Myself->ViewYaw == 0)
                     continue;
-                if (std::fabs(p->ViewYaw - Myself->ViewYaw) < 0.1f && p->IsDead)
+
+                uint64_t SpectatorList = mem.Read<uint64_t>(mem.OFF_BASE + OFF_OBSERVER_LIST);
+                int PlayerData = mem.Read<int>(p->BasePointer + 0x38);
+                int SpecIndex = mem.Read<int>(SpectatorList + PlayerData * 8 + OFF_OBSERVER_LIST_IN_ARRAY);
+                uint64_t SpectatorAddr = mem.Read<uint64_t>(mem.OFF_BASE + OFF_ENTITY_LIST + ((SpecIndex & 0xFFFF) << 5));
+
+                if (SpectatorAddr == Myself->BasePointer)
                 {
-                    std::cout << "Spec: " << p->ViewYaw << ", Play: " << Myself->ViewYaw << std::endl;
+                    std::cout << "SPECTATOR!" << std::endl;
                     TempTotalSpectators++;
+                    TempSpectatorsNames.push_back(p->Name);
                 }
             }
 
             TotalSpectators = TempTotalSpectators;
-            Spectators = TempSpectators;
+            SpectatorsNames = TempSpectatorsNames;
             LastUpdateTime = Now;
         }
     }
-
-
 };

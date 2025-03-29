@@ -175,7 +175,13 @@ SIZE_T VMMDLL_MemSize(_In_ PVOID pvMem);
 EXPORTED_FUNCTION
 VOID VMMDLL_MemFree(_Frees_ptr_opt_ PVOID pvMem);
 
-
+EXPORTED_FUNCTION
+_Success_(return)
+BOOL VMMDLL_VirtualToPhysical(
+    _In_ VMM_HANDLE H,
+    _In_ ULONG64 virtualAddress,
+    _Out_ PULONG64 physicalAddress
+);
 
 //-----------------------------------------------------------------------------
 // CONFIGURATION SETTINGS BELOW:
@@ -1668,7 +1674,7 @@ _Success_(return) BOOL VMMDLL_Map_GetModuleW(_In_ VMM_HANDLE hVMM, _In_ DWORD dw
 */
 EXPORTED_FUNCTION
 _Success_(return) BOOL VMMDLL_Map_GetModuleFromNameU(_In_ VMM_HANDLE hVMM, _In_ DWORD dwPID, _In_opt_ LPSTR  uszModuleName, _Out_ PVMMDLL_MAP_MODULEENTRY *ppModuleMapEntry, _In_ DWORD flags);
-_Success_(return) BOOL VMMDLL_Map_GetModuleFromNameW(_In_ VMM_HANDLE hVMM, _In_ DWORD dwPID, _In_opt_ LPWSTR wszModuleName, _Out_ PVMMDLL_MAP_MODULEENTRY *ppModuleMapEntry, _In_ DWORD flags);
+_Success_(return) BOOL VMMDLL_Map_GetModuleFromNameW(_In_ VMM_HANDLE hVMM, _In_ DWORD dwPID, _In_opt_ LPCWSTR wszModuleName, _Out_ PVMMDLL_MAP_MODULEENTRY * ppModuleMapEntry, _In_ DWORD flags);
 
 /*
 * Retrieve the unloaded modules (.dll/.sys) for the specified process.

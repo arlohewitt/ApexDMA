@@ -146,6 +146,9 @@ public:
 	*/
 	uintptr_t GetExportTableAddress(std::string import, std::string process, std::string module);
 
+
+	bool VirtToPhys(uint64_t va, uint64_t& pa);
+
 	/**
 	* brief Gets the import table address of the process
 	* @param import the name of the import

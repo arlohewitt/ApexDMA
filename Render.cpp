@@ -51,20 +51,23 @@ int keyValues[] = {
 constexpr int keyCount = sizeof(keyNames) / sizeof(keyNames[0]);
 
 const char* glowNames[] = {
-    "Blue",
+    "Blue",   // Lowest rarity
     "Purple",
     "Gold",
+    "Red"     // Highest rarity
 };
+
 int glowValues[] = {
-    35, // Blue
-    36, // Purple
-    37, // Gold
+    54, // Blue
+    47, // Purple
+    15, // Gold
+    42, // Red
 };
 constexpr int glowCount = sizeof(glowNames) / sizeof(glowNames[0]);
 
-int FindCurrentSelectionIndex(const int value, const int* keyValues, const int keyCount) {
-    for (int i = 0; i < keyCount; ++i) {
-        if (value == keyValues[i]) {
+int FindCurrentSelectionIndex(const int value, const int* values, const int count) {
+    for (int i = 0; i < count; ++i) {
+        if (value == values[i]) {
             return i;
         }
     }
@@ -156,9 +159,10 @@ void Render(LocalPlayer* Myself, std::vector<Player*>* Players, Camera* GameCame
         fg_draw->AddText(ImVec2(10, 50), IM_COL32(255, 255, 255, 255), PerformanceString.c_str());
 
         // Settings Window, Fixed Width
-        ImGui::SetNextWindowSize(ImVec2(400, 430), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(400, 510), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowPos(ImVec2(width - 410, 10), ImGuiCond_FirstUseEver);
         ImGui::Begin("Settings");
+
         // AimAssist Settings
         ImGui::PushFont(huge_font);
         ImGui::Text("AimAssist Settings");
@@ -208,7 +212,6 @@ void Render(LocalPlayer* Myself, std::vector<Player*>* Players, Camera* GameCame
             AimAssist->AimFlickKey = keyValues[aimFlickKeyIndex];
             Config::GetInstance().Save();
         }
-
         // Glow Settings
         ImGui::PushFont(huge_font);
         ImGui::Text("Glow Settings");
@@ -222,7 +225,21 @@ void Render(LocalPlayer* Myself, std::vector<Player*>* Players, Camera* GameCame
         ImGui::Text("Minimum Item Rarity:");
         if (ImGui::Combo("##Minimum Item Rarity", &itemGlowIndex, glowNames, glowCount)) {
             ESP->MinimumItemRarity = glowValues[itemGlowIndex];
+            ESP->updateItemsToGlowArray(); // Update the items array based on selection
             Config::GetInstance().Save();
+        }
+
+        ImGui::PushFont(huge_font);
+        ImGui::Text("Spectators");
+        ImGui::PopFont();
+
+        ImGui::Text("Total Spectators: %d", Spectators->TotalSpectators);
+
+        if (Spectators->TotalSpectators > 0) {
+            ImGui::Text("Spectating Players:");
+            for (const auto& spectatorName : Spectators->SpectatorsNames) {
+                ImGui::BulletText("%s", spectatorName.c_str());
+            }
         }
 
         ImGui::End();

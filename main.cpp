@@ -35,34 +35,34 @@ Spectator* Spectators = new Spectator(Players, Myself);
 Misc* Miscellanous = new Misc(Myself);
 
 void MiscBaseScatter(Level* map, LocalPlayer* myself, Camera* gameCamera, Sense* esp) {
-	// Create scatter handle
-	auto handle = mem.CreateScatterHandle();
+    // Create scatter handle
+    auto handle = mem.CreateScatterHandle();
 
-	// Scatter read request for Level
-	uint64_t levelAddress = mem.OFF_BASE + OFF_LEVEL;
-	mem.AddScatterReadRequest(handle, levelAddress, &map->NameBuffer, sizeof(map->NameBuffer));
+    // Scatter read request for Level
+    uint64_t levelAddress = mem.OFF_BASE + OFF_LEVEL;
+    mem.AddScatterReadRequest(handle, levelAddress, &map->NameBuffer, sizeof(map->NameBuffer));
 
-	// Scatter read request for LocalPlayer BasePointer
-	uint64_t localPlayerAddress = mem.OFF_BASE + OFF_LOCAL_PLAYER;
-	mem.AddScatterReadRequest(handle, localPlayerAddress, &myself->BasePointer, sizeof(uint64_t));
+    // Scatter read request for LocalPlayer BasePointer
+    uint64_t localPlayerAddress = mem.OFF_BASE + OFF_LOCAL_PLAYER;
+    mem.AddScatterReadRequest(handle, localPlayerAddress, &myself->BasePointer, sizeof(uint64_t));
 
-	// Scatter read request for LocalPlayer inAttack
-	uint64_t inAttackAddress = mem.OFF_BASE + OFF_INATTACK;
-	mem.AddScatterReadRequest(handle, inAttackAddress, &myself->IsInAttack, sizeof(uint32_t));
+    // Scatter read request for LocalPlayer inAttack
+    uint64_t inAttackAddress = mem.OFF_BASE + OFF_INATTACK;
+    mem.AddScatterReadRequest(handle, inAttackAddress, &myself->IsInAttack, sizeof(uint32_t));
 
-	// Scatter read request for GameCamera
-	uint64_t cameraRenderPointerAddress = mem.OFF_BASE + OFF_VIEWRENDER;
-	mem.AddScatterReadRequest(handle, cameraRenderPointerAddress, &gameCamera->RenderPointer, sizeof(uint64_t));
+    // Scatter read request for GameCamera
+    uint64_t cameraRenderPointerAddress = mem.OFF_BASE + OFF_VIEWRENDER;
+    mem.AddScatterReadRequest(handle, cameraRenderPointerAddress, &gameCamera->RenderPointer, sizeof(uint64_t));
 
     // Scatter read request for HighlightSettingsPointer
     uint64_t highlightSettingsPointerAddress = mem.OFF_BASE + OFF_GLOW_HIGHLIGHTS;
     mem.AddScatterReadRequest(handle, highlightSettingsPointerAddress, &esp->HighlightSettingsPointer, sizeof(uint64_t));
 
-	// Execute the scatter read
-	mem.ExecuteReadScatter(handle);
+    // Execute the scatter read
+    mem.ExecuteReadScatter(handle);
 
-	// Close the scatter handle
-	mem.CloseScatterHandle(handle);
+    // Close the scatter handle
+    mem.CloseScatterHandle(handle);
 }
 
 void PlayerBasePointerScatter(std::vector<Player*>& players) {
@@ -117,25 +117,25 @@ void ScatterReadTeamAndName(std::vector<Player*>& players) {
 }
 
 void ScatterReadPlayerValidity(std::vector <Player*>& players) {
-	// Create scatter handle
-	auto handle = mem.CreateScatterHandle();
+    // Create scatter handle
+    auto handle = mem.CreateScatterHandle();
 
-	for (size_t i = 0; i < players.size(); ++i) {
-		Player* player = players[i];
+    for (size_t i = 0; i < players.size(); ++i) {
+        Player* player = players[i];
 
-		// Verify that the BasePointer is not 0 before adding scatter read requests
-		if (mem.IsValidPointer(player->BasePointer)) {
-			// Scatter read request for IsPlayer
-			uint64_t validAddress = player->BasePointer;
-			mem.AddScatterReadRequest(handle, validAddress, &player->Valid, sizeof(uint64_t));
-		}
-	}
+        // Verify that the BasePointer is not 0 before adding scatter read requests
+        if (mem.IsValidPointer(player->BasePointer)) {
+            // Scatter read request for IsPlayer
+            uint64_t validAddress = player->BasePointer;
+            mem.AddScatterReadRequest(handle, validAddress, &player->Valid, sizeof(uint64_t));
+        }
+    }
 
-	// Execute the scatter read
-	mem.ExecuteReadScatter(handle);
+    // Execute the scatter read
+    mem.ExecuteReadScatter(handle);
 
-	// Close the scatter handle
-	mem.CloseScatterHandle(handle);
+    // Close the scatter handle
+    mem.CloseScatterHandle(handle);
 
     for (int i = 0; i < Players->size(); i++) {
         Player* p = Players->at(i);
@@ -206,9 +206,9 @@ void ScatterReadPlayerAttributes(std::vector<Player*>& players) {
                 uint64_t modelPointerAddress = player->BasePointer + OFF_STUDIOHDR;
                 mem.AddScatterReadRequest(handle, modelPointerAddress, &player->ModelPointer, sizeof(uint64_t));
 
-				// Scatter read request for BonePtr
-				uint64_t bonePointerAddress = player->BasePointer + OFF_BONES;
-				mem.AddScatterReadRequest(handle, bonePointerAddress, &player->BonePointer, sizeof(uint64_t));
+                // Scatter read request for BonePtr
+                uint64_t bonePointerAddress = player->BasePointer + OFF_BONES;
+                mem.AddScatterReadRequest(handle, bonePointerAddress, &player->BonePointer, sizeof(uint64_t));
             }
         }
     }
@@ -255,10 +255,10 @@ void UpdateCore() {
 
 
             if (!Myself->ValidPosition()) {
-				Players->clear();
+                Players->clear();
                 PlayersPopulated = false;
-				continue;
-			}
+                continue;
+            }
 
             // Populate Players //
 
@@ -323,6 +323,8 @@ void UpdateCore() {
             // Update ESP
             ESP->Update();
 
+            Spectators->Update();
+
             // Update AimAssist
             AimAssist->Update_TacticalReload();
             AimAssist->Update_Aimbot();
@@ -338,32 +340,32 @@ void UpdateCore() {
 }
 
 void Profiling() {
-	while (true) {
-		std::cout << "---- Profiling ----" << std::endl;
-		std::cout << "LocalPlayer: " << LocalPlayerProfilingElapsed.count() << "us" << std::endl;
-		std::cout << "PlayerPopulate: " << PlayerPopulateProfilingElapsed.count() << "us" << std::endl;
-		std::cout << "PlayerAttributes: " << PlayerAttributesProfilingElapsed.count() << "us" << std::endl;
+    while (true) {
+        std::cout << "---- Profiling ----" << std::endl;
+        std::cout << "LocalPlayer: " << LocalPlayerProfilingElapsed.count() << "us" << std::endl;
+        std::cout << "PlayerPopulate: " << PlayerPopulateProfilingElapsed.count() << "us" << std::endl;
+        std::cout << "PlayerAttributes: " << PlayerAttributesProfilingElapsed.count() << "us" << std::endl;
         std::cout << "ReadPlayers: " << ReadPlayersProfilingElapsed.count() << "us" << std::endl;
-		std::cout << "GameCamera: " << GameCameraProfilingElapsed.count() << "us" << std::endl;
-		std::cout << "ESP: " << ESPProfilingElapsed.count() << "us" << std::endl;
-		std::cout << "AimAssist: " << AimAssistProfilingElapsed.count() << "us" << std::endl;
-		std::this_thread::sleep_for(std::chrono::seconds(5));
-	}
+        std::cout << "GameCamera: " << GameCameraProfilingElapsed.count() << "us" << std::endl;
+        std::cout << "ESP: " << ESPProfilingElapsed.count() << "us" << std::endl;
+        std::cout << "AimAssist: " << AimAssistProfilingElapsed.count() << "us" << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+    }
 }
 
 int main()
 {
     std::cout << "-----------------------------" << std::endl;
-	std::cout << "Apex Legends DMA Paste" << std::endl;
-	std::cout << "-----------------------------" << std::endl;
+    std::cout << "Apex Legends DMA Paste" << std::endl;
+    std::cout << "-----------------------------" << std::endl;
 
-	// Initialize DMA
-	if (!mem.Init("r5apex.exe", true, false))
-	{
-		std::cout << "Failed to initilize DMA" << std::endl;
+    // Initialize DMA
+    if (!mem.Init("r5apex_dx12.exe", true, false))
+    {
+        std::cout << "Failed to initilize DMA" << std::endl;
         std::cout << "Press ENTER to continue...";
         std::cin.get();
-	}
+    }
     std::cout << "DMA initilized" << std::endl;
 
     if (!mem.GetKeyboard()->InitKeyboard())
@@ -372,6 +374,8 @@ int main()
         std::cout << "Press ENTER to continue...";
         std::cin.get();
     }
+
+    std::cout << "PASSED KEYBOARD" << std::endl;
 
     try {
         for (int i = 0; i < 70; i++)
