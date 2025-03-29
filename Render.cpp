@@ -225,7 +225,7 @@ void Render(LocalPlayer* Myself, std::vector<Player*>* Players, Camera* GameCame
         ImGui::Text("Minimum Item Rarity:");
         if (ImGui::Combo("##Minimum Item Rarity", &itemGlowIndex, glowNames, glowCount)) {
             ESP->MinimumItemRarity = glowValues[itemGlowIndex];
-            ESP->updateItemsToGlowArray(); // Update the items array based on selection
+            ESP->updateItemsToGlowArray();
             Config::GetInstance().Save();
         }
 

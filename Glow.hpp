@@ -20,7 +20,7 @@ struct Sense {
     uint64_t HighlightSettingsPointer;
 
     bool ItemGlow = false;
-    int MinimumItemRarity = 35;
+    int MinimumItemRarity = 54;
 
     // Define rarity constants
     const int goldItems = 15;
