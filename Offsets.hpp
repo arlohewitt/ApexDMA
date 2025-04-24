@@ -56,7 +56,7 @@ constexpr uint64_t OFF_RELOADING = 0x15fa;                        //[RecvTable.D
 constexpr uint64_t OFF_GLOW_HIGHLIGHTS = 0x72B6430;               //HighlightSettings
 constexpr uint64_t OFF_GLOW_ENABLE = 0x28C;                       //Script_Highlight_GetCurrentContext
 constexpr uint64_t OFF_GLOW_THROUGH_WALL = 0x26c;                 //Script_Highlight_SetVisibilityType
-constexpr uint64_t OFF_GLOW_FIX = 0x268;
+constexpr uint64_t OFF_GLOW_FIX = 0x278;
 constexpr uint64_t OFF_GLOW_HIGHLIGHT_ID = 0x29C;                 //[DT_HighlightSettings].m_highlightServerActiveStates    
 constexpr uint64_t OFF_GLOW_HIGHLIGHT_TYPE_SIZE = 0x34;
 
